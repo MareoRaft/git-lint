@@ -14,8 +14,14 @@
 # limitations under the License.
 
 # First part return the files being commited, excluding deleted files.
-git diff-index -z --cached HEAD --name-only --diff-filter=ACMRTUXB |
-xargs --null --no-run-if-empty git lint;
+
+# something like...
+EDITS=$(git diff-index -z --cached HEAD --name-only --diff-filter=ACMRTUXB)
+if[ $(uname) == "Darwin" ]; then
+  echo "$EDITS" | xargs -0 git lint; # where -0 mean --null, and there is no --no-run-if-empty option on OSX
+else
+  echo "$EDITS" | xargs --null --no-run-if-empty git lint;
+fi
 
 if [ "$?" != "0" ]; then
   echo "There are some problems with the modified files.";
